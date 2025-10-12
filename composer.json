@@ -1,0 +1,43 @@
+{
+    "name": "marble/entity-manager-bundle",
+    "description": "Symfony bundle for Marble Entity Manager",
+    "type": "symfony-bundle",
+    "license": "MIT",
+    "homepage": "https://github.com/marble-php/entity-manager-bundle",
+    "authors": [
+        {
+            "name": "Mark van den Berg",
+            "email": "mjpvandenberg@gmail.com",
+            "role": "Lead developer"
+        }
+    ],
+    "keywords": [
+        "entity manager",
+        "unit of work",
+        "repository",
+        "persistence",
+        "bundle"
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "php": "^8.1",
+        "marble/entity-manager": "0.8.*",
+        "symfony/dependency-injection": "^6.4|^7.1",
+        "symfony/http-kernel": "^6.4|^7.1"
+    },
+    "require-dev": {
+        "mockery/mockery": "^1.4",
+        "phpunit/phpunit": "^9.5",
+        "vimeo/psalm": "^4.16"
+    },
+    "autoload": {
+        "psr-4": {
+            "Marble\\EntityManager\\Bundle\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Marble\\EntityManager\\Bundle\\Tests\\": "tests"
+        }
+    }
+}

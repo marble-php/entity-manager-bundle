@@ -1,0 +1,9 @@
+services:
+  marble.entity_manager.entity_manager:
+    arguments:
+      $ioProvider: '@Marble\EntityManager\Contract\EntityIoProvider'
+      $dispatcher: '@Psr\EventDispatcher\EventDispatcherInterface'
+    public: true
+
+  # alias for autowiring
+  Marble\EntityManager\EntityManager: '@marble.entity_manager.entity_manager'
