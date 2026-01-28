@@ -1,9 +1,22 @@
 services:
-  marble.entity_manager.entity_manager:
-    arguments:
-      $ioProvider: '@Marble\EntityManager\Contract\EntityIoProvider'
-      $dispatcher: '@Psr\EventDispatcher\EventDispatcherInterface'
-    public: true
+    marble.entity_manager.entity_manager:
+        class: Marble\EntityManager\EntityManager
+        arguments:
+            $ioProvider: '@Marble\EntityManager\Contract\EntityIoProvider'
+            $dispatcher: '@Psr\EventDispatcher\EventDispatcherInterface'
+        public: true
 
-  # alias for autowiring
-  Marble\EntityManager\EntityManager: '@marble.entity_manager.entity_manager'
+    Marble\EntityManager\EntityManager: '@marble.entity_manager.entity_manager'
+
+    marble.entity_manager.io_provider:
+        class: Marble\EntityManager\Bundle\DefaultEntityIoProvider
+        arguments:
+            $readers: !tagged_locator
+                tag: 'marble.entity_manager.entity_reader'
+                default_index_method: 'getEntityClassName'
+            $writer: '@Marble\EntityManager\Contract\EntityWriter'
+            $repositories: '@marble.entity_manager.custom_repository_locator'
+        public: false
+
+    Marble\EntityManager\Contract\EntityIoProvider: '@marble.entity_manager.io_provider'
+    Marble\EntityManager\Bundle\DefaultEntityIoProvider: '@marble.entity_manager.io_provider'

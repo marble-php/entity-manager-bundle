@@ -20,15 +20,19 @@
     ],
     "minimum-stability": "stable",
     "require": {
-        "php": "^8.1",
-        "marble/entity-manager": "0.8.*",
-        "symfony/dependency-injection": "^6.4|^7.1",
-        "symfony/http-kernel": "^6.4|^7.1"
+        "php": "^8.2.27",
+        "marble/entity-manager": "0.13.*",
+        "phpdocumentor/reflection-docblock": "^6.0",
+        "symfony/config": "^7.4",
+        "symfony/dependency-injection": "^7.3|^8.0",
+        "symfony/http-kernel": "^7.3|^8.0",
+        "symfony/yaml": "^7.4"
     },
     "require-dev": {
+        "dg/bypass-finals": "^1.9",
         "mockery/mockery": "^1.4",
-        "phpunit/phpunit": "^9.5",
-        "vimeo/psalm": "^4.16"
+        "phpunit/phpunit": "^10",
+        "vimeo/psalm": "^5.0|^6.0|^7.0"
     },
     "autoload": {
         "psr-4": {
