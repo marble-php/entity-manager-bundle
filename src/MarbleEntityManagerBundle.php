@@ -11,7 +11,7 @@ use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigura
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
 
 /** @psalm-suppress UnusedClass */
-class MarbleEntityManagerBundle extends AbstractBundle
+final class MarbleEntityManagerBundle extends AbstractBundle
 {
     #[\Override]
     public function build(ContainerBuilder $container): void

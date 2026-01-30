@@ -7,6 +7,7 @@ use Marble\EntityManager\Repository\CustomRepository;
 use Marble\Exception\LogicException;
 use phpDocumentor\Reflection\DocBlock\Tags\Extends_;
 use phpDocumentor\Reflection\DocBlockFactory;
+use phpDocumentor\Reflection\DocBlockFactoryInterface;
 use phpDocumentor\Reflection\PseudoTypes\Generic;
 use phpDocumentor\Reflection\Type;
 use phpDocumentor\Reflection\TypeResolver;
@@ -20,11 +21,14 @@ use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use function PHPUnit\Framework\assertInstanceOf;
 
+/**
+ * @api
+ */
 class DetectCustomRepositoriesPass implements CompilerPassInterface
 {
     private ?TypeResolver $typeResolver = null;
     private ?ContextFactory $contextFactory = null;
-    private ?DocBlockFactory $docBlockFactory = null;
+    private ?DocBlockFactoryInterface $docBlockFactory = null;
 
     private function typeResolver(): TypeResolver
     {
@@ -36,7 +40,7 @@ class DetectCustomRepositoriesPass implements CompilerPassInterface
         return $this->contextFactory ??= new ContextFactory();
     }
 
-    private function docBlockFactory(): DocBlockFactory
+    private function docBlockFactory(): DocBlockFactoryInterface
     {
         return $this->docBlockFactory ??= DocBlockFactory::createInstance();
     }
@@ -51,16 +55,20 @@ class DetectCustomRepositoriesPass implements CompilerPassInterface
             $definition = $container->getDefinition($id);
             $class      = $definition->getClass();
 
-            if (!class_exists($class)) {
+            if ($class === null || !class_exists($class)) {
                 throw new ServiceNotFoundException($id);
             } elseif (!is_a($class, CustomRepository::class, true)) {
                 continue; // tag is only effective on CustomRepository subclasses
             }
 
             $reflection = new ReflectionClass($class);
+            $doc        = $reflection->getDocComment();
+            $doc        = $doc === false ? '' : $doc;
 
-            if ($doc = $reflection->getDocComment()) {
-                if ($entityFqcn = $this->processDocBlock($reflection, $doc)) {
+            if (!empty($doc)) {
+                $entityFqcn = $this->processDocBlock($reflection, $doc);
+
+                if ($entityFqcn !== null) {
                     // Use the entity class found in the `@extends CustomRepository<SomeEntity>` tag as 2nd argument into the constructor.
                     $definition->setBindings(['$entityClass' => $entityFqcn]);
                     // Add repository to service locator, keyed by entity class.
@@ -92,7 +100,7 @@ class DetectCustomRepositoriesPass implements CompilerPassInterface
                 continue; // not what we're looking for
             }
 
-            $parent = $this->typeResolver()->resolve($type->getFqsen(), $context);
+            $parent = $this->typeResolver()->resolve((string) $type->getFqsen(), $context);
 
             if (!($parent instanceof Object_ && is_a((string) $parent, CustomRepository::class, true))) {
                 continue; // not what we're looking for
@@ -114,7 +122,7 @@ class DetectCustomRepositoriesPass implements CompilerPassInterface
                     $tag->getName(), $class->getName(), (string) $template, $template::class));
             }
 
-            $resolvedType = (string) $this->typeResolver()->resolve($template->getFqsen(), $context);
+            $resolvedType = (string) $this->typeResolver()->resolve((string) $template->getFqsen(), $context);
 
             if (!is_a($resolvedType, Entity::class, true)) {
                 throw new LogicException(sprintf("Type argument %s in the @%s tag of %s does not implement the %s interface.",
