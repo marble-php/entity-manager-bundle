@@ -3,7 +3,7 @@ services:
         class: Marble\EntityManager\EntityManager
         arguments:
             $ioProvider: '@Marble\EntityManager\Contract\EntityIoProvider'
-            $dispatcher: '@Psr\EventDispatcher\EventDispatcherInterface'
+            $dispatcher: '@?Psr\EventDispatcher\EventDispatcherInterface'
         public: true
 
     Marble\EntityManager\EntityManager: '@marble.entity_manager.entity_manager'
@@ -18,5 +18,5 @@ services:
             $repositories: '@marble.entity_manager.custom_repository_locator'
         public: false
 
-    Marble\EntityManager\Contract\EntityIoProvider: '@marble.entity_manager.io_provider'
     Marble\EntityManager\Bundle\DefaultEntityIoProvider: '@marble.entity_manager.io_provider'
+    Marble\EntityManager\Contract\EntityIoProvider: '@marble.entity_manager.io_provider'

@@ -22,7 +22,7 @@ final class MarbleEntityManagerBundle extends AbstractBundle
     #[\Override]
     public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
     {
-        $container->import('../config/services.yaml');
+        $container->import(dirname(__DIR__) . '/config/services.yaml');
 
         $builder->registerForAutoconfiguration(EntityReader::class)->addTag('marble.entity_manager.entity_reader');
         $builder->registerForAutoconfiguration(EntityWriter::class)->addTag('marble.entity_manager.entity_writer');
