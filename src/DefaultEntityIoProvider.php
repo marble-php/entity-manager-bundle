@@ -18,13 +18,13 @@ use Psr\Container\ContainerInterface;
 class DefaultEntityIoProvider implements EntityIoProvider
 {
     /**
-     * @param ContainerInterface   $readers
-     * @param EntityWriter<Entity> $writer
-     * @param ContainerInterface   $repositories
+     * @param ContainerInterface        $readers
+     * @param EntityWriter<Entity>|null $writer
+     * @param ContainerInterface        $repositories
      */
     public function __construct(
         private readonly ContainerInterface $readers,
-        private readonly EntityWriter       $writer, // acceptable if only 1 implementation exists
+        private readonly ?EntityWriter      $writer, // acceptable if only 1 implementation exists
         private readonly ContainerInterface $repositories,
     ) {
     }
@@ -65,6 +65,11 @@ class DefaultEntityIoProvider implements EntityIoProvider
     #[\Override]
     public function getWriter(string $className): EntityWriter
     {
+        if ($this->writer === null) {
+            throw new LogicException(sprintf('No service implementing "%s" was found in the service container. '
+                . 'Please register one to use Marble with the default IO provider.', EntityWriter::class));
+        }
+
         /** @var EntityWriter<T> $writer */
         $writer = $this->writer;
 

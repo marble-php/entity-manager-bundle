@@ -12,7 +12,7 @@ You can then inject the `EntityManager` into your controllers and services to fe
 
 If you want to use more than one writer (e.g. a different one per entity, just like readers),
 you will have implement a new `EntityIoProvider`. An easy way to do so is to extend `DefaultEntityIoProvider` 
-and override the `getWriter()` method. Register your service in the container
+and override the `getWriter` method. Register your service in the container
 under the interface alias, so that the bundle can inject it:
 
 ```yaml
