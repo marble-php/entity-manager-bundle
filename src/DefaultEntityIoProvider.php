@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Marble\EntityManager\Bundle;
 
 use Marble\Entity\Entity;
