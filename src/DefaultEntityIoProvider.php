@@ -19,14 +19,9 @@ use Psr\Container\ContainerInterface;
  */
 class DefaultEntityIoProvider implements EntityIoProvider
 {
-    /**
-     * @param ContainerInterface        $readers
-     * @param EntityWriter<Entity>|null $writer
-     * @param ContainerInterface        $repositories
-     */
     public function __construct(
         private readonly ContainerInterface $readers,
-        private readonly ?EntityWriter      $writer, // acceptable if only 1 implementation exists
+        private readonly ContainerInterface $writers,
         private readonly ContainerInterface $repositories,
     ) {
     }
@@ -62,19 +57,25 @@ class DefaultEntityIoProvider implements EntityIoProvider
     /**
      * @template T of Entity
      * @param class-string<T> $className
-     * @return EntityWriter<T>
+     * @return EntityWriter<T>|null
+     * @throws ContainerExceptionInterface
      */
     #[\Override]
-    public function getWriter(string $className): EntityWriter
+    public function getWriter(string $className): ?EntityWriter
     {
-        if ($this->writer === null) {
-            throw new LogicException(sprintf('No service implementing "%s" was found in the service container. '
-                . 'Please register one to use Marble with the default IO provider.', EntityWriter::class));
+        $this->validateEntityClass($className);
+
+        /** @psalm-suppress MixedAssignment */
+        $writer = $this->writers->get($className);
+
+        if ($writer === null) {
+            return null;
+        } elseif (!$writer instanceof EntityWriter) {
+            throw new LogicException(sprintf("Writer %s for entity %s does not implement %s.",
+                get_debug_type($writer), $className, EntityWriter::class));
         }
 
         /** @var EntityWriter<T> $writer */
-        $writer = $this->writer;
-
         return $writer;
     }
 

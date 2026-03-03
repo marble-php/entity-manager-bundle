@@ -14,7 +14,7 @@ services:
             $readers: !tagged_locator
                 tag: 'marble.entity_manager.entity_reader'
                 default_index_method: 'getEntityClassName'
-            $writer: '@Marble\EntityManager\Contract\EntityWriter'
+            $writers: '@marble.entity_manager.entity_writer_locator'
             $repositories: '@marble.entity_manager.custom_repository_locator'
         public: false
 

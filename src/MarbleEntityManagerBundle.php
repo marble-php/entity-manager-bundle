@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Marble\EntityManager\Bundle;
 
-use Marble\EntityManager\Bundle\DependencyInjection\DetectCustomRepositoriesPass;
 use Marble\EntityManager\Contract\EntityReader;
 use Marble\EntityManager\Contract\EntityWriter;
 use Marble\EntityManager\Repository\CustomRepository;
@@ -18,7 +17,8 @@ final class MarbleEntityManagerBundle extends AbstractBundle
     #[\Override]
     public function build(ContainerBuilder $container): void
     {
-        $container->addCompilerPass(new DetectCustomRepositoriesPass());
+        $container->addCompilerPass(new DependencyInjection\DetectCustomRepositoriesPass());
+        $container->addCompilerPass(new DependencyInjection\DetectEntityWritersPass());
     }
 
     #[\Override]
