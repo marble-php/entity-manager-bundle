@@ -37,6 +37,10 @@ class DefaultEntityIoProvider implements EntityIoProvider
     {
         $this->validateEntityClass($className);
 
+        if (!$this->readers->has($className)) {
+            return null;
+        }
+
         /** @psalm-suppress MixedAssignment */
         $reader = $this->readers->get($className);
 
@@ -65,12 +69,14 @@ class DefaultEntityIoProvider implements EntityIoProvider
     {
         $this->validateEntityClass($className);
 
+        if (!$this->writers->has($className)) {
+            return null;
+        }
+
         /** @psalm-suppress MixedAssignment */
         $writer = $this->writers->get($className);
 
-        if ($writer === null) {
-            return null;
-        } elseif (!$writer instanceof EntityWriter) {
+        if ($writer !== null && !$writer instanceof EntityWriter) {
             throw new LogicException(sprintf("Writer %s for entity %s does not implement %s.",
                 get_debug_type($writer), $className, EntityWriter::class));
         }
@@ -86,10 +92,15 @@ class DefaultEntityIoProvider implements EntityIoProvider
      * @throws ContainerExceptionInterface
      */
     #[\Override]
-    public function getCustomRepository(string $className): CustomRepository|null
+    public function getCustomRepository(string $className): ?CustomRepository
     {
         $this->validateEntityClass($className);
 
+        if (!$this->repositories->has($className)) {
+            return null;
+        }
+
+        /** @psalm-suppress MixedAssignment */
         $repository = $this->repositories->get($className);
 
         if ($repository !== null && !$repository instanceof CustomRepository) {

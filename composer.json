@@ -7,8 +7,7 @@
     "authors": [
         {
             "name": "Mark van den Berg",
-            "email": "mjpvandenberg@gmail.com",
-            "role": "Lead developer"
+            "email": "mjpvandenberg@gmail.com"
         }
     ],
     "keywords": [
@@ -18,20 +17,20 @@
         "persistence",
         "bundle"
     ],
-    "minimum-stability": "stable",
     "require": {
         "php": "^8.2.27",
         "marble/entity-manager": "~0.13",
         "phpdocumentor/reflection-docblock": "^6.0",
         "symfony/config": "^7.4",
-        "symfony/dependency-injection": "^7.3|^8.0",
-        "symfony/http-kernel": "^7.3|^8.0",
-        "symfony/yaml": "^7.4"
+        "symfony/dependency-injection": "^7.4|^8.0",
+        "symfony/http-kernel": "^7.4|^8.0",
+        "symfony/yaml": "^7.4",
+        "webmozart/assert": "^2"
     },
     "require-dev": {
         "dg/bypass-finals": "^1.9",
-        "mockery/mockery": "^1.4",
-        "phpunit/phpunit": "^10",
+        "mockery/mockery": "^1.6.12",
+        "phpunit/phpunit": "^10|^11|^12|^13",
         "vimeo/psalm": "^5.0|^6.0|^7.0"
     },
     "autoload": {
@@ -43,5 +42,11 @@
         "psr-4": {
             "Marble\\EntityManager\\Bundle\\Tests\\": "tests"
         }
+    },
+    "config": {
+        "allow-plugins": {
+            "composer/package-versions-deprecated": true
+        },
+        "sort-packages": true
     }
 }
