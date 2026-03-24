@@ -8,6 +8,9 @@ use Marble\EntityManager\Write\DeleteContext;
 use Marble\EntityManager\Write\Persistable;
 use Marble\EntityManager\Write\WriteContext;
 
+/**
+ * @implements EntityWriter<TestEntity>
+ */
 class TestWriter implements EntityWriter
 {
     public function write(Persistable $persistable, WriteContext $context): void

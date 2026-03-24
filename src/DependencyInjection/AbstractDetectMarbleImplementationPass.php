@@ -61,18 +61,13 @@ abstract class AbstractDetectMarbleImplementationPass implements CompilerPassInt
             }
 
             $reflection = new ReflectionClass($class);
-            $doc        = $reflection->getDocComment();
-            $doc        = $doc === false ? '' : $doc;
+            $entityFqcn = $this->findEntityClass($reflection);
 
-            if (!empty($doc)) {
-                $entityFqcn = $this->processDocBlock($reflection, $doc);
-
-                if ($entityFqcn !== null) {
-                    // Add service to service locator, keyed by entity class.
-                    $locatableServices[$entityFqcn] = new Reference($id);
-                    // Do something else?
-                    $this->modifyServiceDefinition($definition, $entityFqcn);
-                }
+            if ($entityFqcn !== null) {
+                // Add service to service locator, keyed by entity class.
+                $locatableServices[$entityFqcn] = new Reference($id);
+                // Do something else?
+                $this->modifyServiceDefinition($definition, $entityFqcn);
             }
         }
 
@@ -82,9 +77,48 @@ abstract class AbstractDetectMarbleImplementationPass implements CompilerPassInt
             ->addTag('container.service_locator');
     }
 
-    private function processDocBlock(ReflectionClass $class, string $doc): ?string
+    protected function findEntityClass(ReflectionClass $reflection): ?string
     {
-        $context = $this->contextFactory()->createFromReflector($class);
+        $entityFqcn = $this->processDocBlock($reflection);
+
+        if ($entityFqcn !== null) {
+            return $entityFqcn;
+        }
+
+        // This bundle does not iterate up the class hierarchy. Only annotations
+        // on the custom repository class itself, or on any of the interfaces it implements,
+        // are considered.
+
+        $baseInterface = $this->getInterface();
+
+        if ($baseInterface !== null) {
+            // Check if there's an implemented interface with the right docblock.
+            $interfaces = $reflection->getInterfaces();
+
+            foreach ($interfaces as $interface) {
+                if (is_a($interface->getName(), $baseInterface, true)) {
+                    $entityFqcn = $this->processDocBlock($interface);
+
+                    if ($entityFqcn !== null) {
+                        return $entityFqcn;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private function processDocBlock(ReflectionClass $reflection): ?string
+    {
+        $doc = $reflection->getDocComment();
+        $doc = $doc === false ? '' : $doc;
+
+        if (empty($doc)) {
+            return null;
+        }
+
+        $context = $this->contextFactory()->createFromReflector($reflection);
         $parsed  = $this->docBlockFactory()->create($doc, $context);
         $tags    = $parsed->getTags();
 
@@ -101,7 +135,7 @@ abstract class AbstractDetectMarbleImplementationPass implements CompilerPassInt
 
             $parent = $this->typeResolver()->resolve((string) $type->getFqsen(), $context);
 
-            if (!($parent instanceof Object_ && is_a((string) $parent, $this->getBaseClass(), true))) {
+            if (!($parent instanceof Object_ && is_a(ltrim((string) $parent->getFqsen(), '\\'), $this->getBaseClass(), true))) {
                 continue; // not what we're looking for
             }
 
@@ -111,7 +145,7 @@ abstract class AbstractDetectMarbleImplementationPass implements CompilerPassInt
                 throw new LogicException(sprintf(
                     "The @%s tag of %s should specify exactly one type argument to %s, e.g. %s<ExampleEntity>; %s found.",
                     $tag->getName(),
-                    $class->getName(),
+                    $reflection->getName(),
                     $short = (new ReflectionClass($this->getBaseClass()))->getShortName(),
                     $short,
                     (string) $type
@@ -126,7 +160,7 @@ abstract class AbstractDetectMarbleImplementationPass implements CompilerPassInt
                 throw new LogicException(sprintf(
                     "The @%s tag of %s specifies an invalid type argument to %s (%s is a %s).",
                     $tag->getName(),
-                    $class->getName(),
+                    $reflection->getName(),
                     (new ReflectionClass($this->getBaseClass()))->getShortName(),
                     (string) $template,
                     $template::class
@@ -134,18 +168,19 @@ abstract class AbstractDetectMarbleImplementationPass implements CompilerPassInt
             }
 
             $resolvedType = (string) $this->typeResolver()->resolve((string) $template->getFqsen(), $context);
+            $resolvedType = ltrim($resolvedType, '\\');
 
             if (!is_a($resolvedType, Entity::class, true)) {
                 throw new LogicException(sprintf(
                     "Type argument %s in the @%s tag of %s does not implement the %s interface.",
                     $resolvedType,
                     $tag->getName(),
-                    $class->getName(),
+                    $reflection->getName(),
                     Entity::class
                 ));
             }
 
-            return ltrim($resolvedType, '\\');
+            return $resolvedType;
         }
 
         return null;
@@ -155,6 +190,11 @@ abstract class AbstractDetectMarbleImplementationPass implements CompilerPassInt
      * @return class-string
      */
     abstract protected function getBaseClass(): string;
+
+    /**
+     * @return class-string|null
+     */
+    abstract protected function getInterface(): ?string;
 
     abstract protected function getServiceTagName(): string;
 

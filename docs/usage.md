@@ -4,24 +4,38 @@ Please refer to the [Marble Entity Manager documentation](https://github.com/mar
 for more information on the roles and contracts of readers, writers and custom repositories.
 
 After installing the bundle, you're ready to start using Marble Entity Manager in your Symfony application.
-Just go ahead and implement your readers, and a writer. As long as you make sure these services are registered
+Just go ahead and implement your readers and writers. As long as you make sure these services are registered
 in the container, the bundle will collect them into the `DefaultEntityIoProvider`. 
 You can then inject the `EntityManager` into your controllers and services to fetch and persist entities.
 
-### Multiple writers
+### Custom repositories
 
-If you want to use more than one writer (e.g. a different one per entity, just like readers),
-you will have implement a new `EntityIoProvider`. An easy way to do so is to extend `DefaultEntityIoProvider` 
-and override the `getWriter` method. Register your service in the container
-under the interface alias, so that the bundle can inject it:
+Do not use custom repositories to implement custom fetching behaviors.
+Instead, create custom query classes that you pass to the existing `fetch*` methods,
+and make sure your readers handle them correctly, e.g. adapt their SELECT statements according to 
+the query class and its properties.
 
-```yaml
-# config/services.yaml
+Given this, you probably want to use custom repositories mainly for more expressive dependency injection.
+And you will probably want to type-hint **repository interfaces** instead of concrete classes.
 
-Marble\EntityManager\Contract\EntityIoProvider: '@App\Infrastructure\EntityIoProvider'
+First, create an interface that extends Marble’s `Repository` interface. Add the `@extends` annotation as follows.
+This allows the bundle to automatically register
+
+```php
+/**
+ * @extends Repository<SomeEntity>
+ */
+interface SomeEntityRepositoryInterface extends Repository
 ```
 
-### Custom repositories
+The Then create a class that extends `CustomRepository` and implements the interface. 
+
+```php
+class SomeEntityRepository extends CustomRepository implements SomeEntityRepositoryInterface
+```
+
+You don’t need to add the `@extends` annotation to this class, because the interface already has one, but you may.
+
 
 If you want to use custom repositories, just extend the `CustomRepository` class, annotate it with
 an `@extends` annotation (see example below), and the bundle will take care of the rest. You can then type-hint

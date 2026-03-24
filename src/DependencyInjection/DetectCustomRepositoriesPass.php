@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Marble\EntityManager\Bundle\DependencyInjection;
 
 use Marble\EntityManager\Repository\CustomRepository;
+use Marble\EntityManager\Repository\Repository;
 use Symfony\Component\DependencyInjection\Definition;
 
 /**
@@ -16,6 +17,12 @@ class DetectCustomRepositoriesPass extends AbstractDetectMarbleImplementationPas
     protected function getBaseClass(): string
     {
         return CustomRepository::class;
+    }
+
+    #[\Override]
+    protected function getInterface(): ?string
+    {
+        return Repository::class;
     }
 
     #[\Override]

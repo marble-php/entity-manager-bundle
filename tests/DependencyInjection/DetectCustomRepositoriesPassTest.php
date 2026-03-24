@@ -15,6 +15,8 @@ use Mockery;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ServiceLocator;
+use Marble\EntityManager\Repository\CustomRepository;
+use Marble\EntityManager\Repository\Repository;
 
 class DetectCustomRepositoriesPassTest extends MockeryTestCase
 {
@@ -47,6 +49,25 @@ class DetectCustomRepositoriesPassTest extends MockeryTestCase
 
         // Now check that the repo has the correct entity class constructor-injected.
         $this->assertEquals(TestEntity::class, $repo->getEntityClassName());
+    }
+
+    public function testLocatorHasTaggedRepositoryWithInterfaceDocBlock(): void
+    {
+        $container = new ContainerBuilder();
+        $container
+            ->register('test_repo', TestRepositoryWithInterface::class)
+            ->addTag('marble.entity_manager.custom_repository')
+            ->setArgument(0, Mockery::mock(EntityManager::class));
+
+        $pass = new DetectCustomRepositoriesPass();
+        $pass->process($container);
+
+        $this->assertTrue($container->hasDefinition('marble.entity_manager.custom_repository_locator'));
+
+        $locatorDef = $container->getDefinition('marble.entity_manager.custom_repository_locator');
+        $services = $locatorDef->getArgument(0);
+
+        $this->assertArrayHasKey(TestEntity::class, $services);
     }
 
     public function testLocatorCreatedEvenWithoutRepositories(): void
@@ -131,4 +152,15 @@ class DetectCustomRepositoriesPassTest extends MockeryTestCase
         $pass = new DetectCustomRepositoriesPass();
         $pass->process($container);
     }
+}
+
+/**
+ * @extends CustomRepository<TestEntity>
+ */
+interface TestRepoInterface extends Repository
+{
+}
+
+class TestRepositoryWithInterface extends CustomRepository implements TestRepoInterface
+{
 }

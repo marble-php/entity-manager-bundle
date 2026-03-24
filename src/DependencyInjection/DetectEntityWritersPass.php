@@ -18,6 +18,12 @@ class DetectEntityWritersPass extends AbstractDetectMarbleImplementationPass
     }
 
     #[\Override]
+    protected function getInterface(): ?string
+    {
+        return EntityWriter::class;
+    }
+
+    #[\Override]
     protected function getServiceTagName(): string
     {
         return 'marble.entity_manager.entity_writer';
