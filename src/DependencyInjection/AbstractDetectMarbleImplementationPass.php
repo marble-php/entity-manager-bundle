@@ -16,6 +16,7 @@ use phpDocumentor\Reflection\TypeResolver;
 use phpDocumentor\Reflection\Types\ContextFactory;
 use phpDocumentor\Reflection\Types\Object_;
 use ReflectionClass;
+use ReflectionException;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -109,6 +110,11 @@ abstract class AbstractDetectMarbleImplementationPass implements CompilerPassInt
         return null;
     }
 
+    /**
+     * @param ReflectionClass $reflection
+     * @param class-string    $requiredAncestor
+     * @return string|null
+     */
     private function processDocBlock(ReflectionClass $reflection, string $requiredAncestor): ?string
     {
         $doc = $reflection->getDocComment();
@@ -142,12 +148,18 @@ abstract class AbstractDetectMarbleImplementationPass implements CompilerPassInt
             $templates = $type->getTypes();
 
             if (count($templates) <> 1) {
+                try {
+                    $refl = new ReflectionClass($requiredAncestor);
+                } catch (ReflectionException) {
+                    throw new LogicException("Failed to reflect class {$requiredAncestor}.");
+                }
+
                 throw new LogicException(sprintf(
                     "The @%s tag of %s should specify exactly one type argument to %s, e.g. %s<ExampleEntity>; %s found.",
                     $tag->getName(),
                     $reflection->getName(),
-                    $short = (new ReflectionClass($requiredAncestor))->getShortName(),
-                    $short,
+                    $refl->getShortName(),
+                    $refl->getShortName(),
                     (string) $type
                 ));
             }
@@ -157,11 +169,17 @@ abstract class AbstractDetectMarbleImplementationPass implements CompilerPassInt
             assert($template instanceof Type);
 
             if (!$template instanceof Object_) {
+                try {
+                    $refl = new ReflectionClass($requiredAncestor);
+                } catch (ReflectionException) {
+                    throw new LogicException("Failed to reflect class {$requiredAncestor}.");
+                }
+
                 throw new LogicException(sprintf(
                     "The @%s tag of %s specifies an invalid type argument to %s (%s is a %s).",
                     $tag->getName(),
                     $reflection->getName(),
-                    (new ReflectionClass($requiredAncestor))->getShortName(),
+                    $refl->getShortName(),
                     (string) $template,
                     $template::class
                 ));
