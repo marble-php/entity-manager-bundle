@@ -79,7 +79,7 @@ abstract class AbstractDetectMarbleImplementationPass implements CompilerPassInt
 
     protected function findEntityClass(ReflectionClass $reflection): ?string
     {
-        $entityFqcn = $this->processDocBlock($reflection);
+        $entityFqcn = $this->processDocBlock($reflection, $this->getBaseClass());
 
         if ($entityFqcn !== null) {
             return $entityFqcn;
@@ -97,7 +97,7 @@ abstract class AbstractDetectMarbleImplementationPass implements CompilerPassInt
 
             foreach ($interfaces as $interface) {
                 if (is_a($interface->getName(), $baseInterface, true)) {
-                    $entityFqcn = $this->processDocBlock($interface);
+                    $entityFqcn = $this->processDocBlock($interface, $baseInterface);
 
                     if ($entityFqcn !== null) {
                         return $entityFqcn;
@@ -109,7 +109,7 @@ abstract class AbstractDetectMarbleImplementationPass implements CompilerPassInt
         return null;
     }
 
-    private function processDocBlock(ReflectionClass $reflection): ?string
+    private function processDocBlock(ReflectionClass $reflection, string $requiredAncestor): ?string
     {
         $doc = $reflection->getDocComment();
         $doc = $doc === false ? '' : $doc;
@@ -135,7 +135,7 @@ abstract class AbstractDetectMarbleImplementationPass implements CompilerPassInt
 
             $parent = $this->typeResolver()->resolve((string) $type->getFqsen(), $context);
 
-            if (!($parent instanceof Object_ && is_a(ltrim((string) $parent->getFqsen(), '\\'), $this->getBaseClass(), true))) {
+            if (!($parent instanceof Object_ && is_a(ltrim((string) $parent->getFqsen(), '\\'), $requiredAncestor, true))) {
                 continue; // not what we're looking for
             }
 
@@ -146,7 +146,7 @@ abstract class AbstractDetectMarbleImplementationPass implements CompilerPassInt
                     "The @%s tag of %s should specify exactly one type argument to %s, e.g. %s<ExampleEntity>; %s found.",
                     $tag->getName(),
                     $reflection->getName(),
-                    $short = (new ReflectionClass($this->getBaseClass()))->getShortName(),
+                    $short = (new ReflectionClass($requiredAncestor))->getShortName(),
                     $short,
                     (string) $type
                 ));
@@ -161,7 +161,7 @@ abstract class AbstractDetectMarbleImplementationPass implements CompilerPassInt
                     "The @%s tag of %s specifies an invalid type argument to %s (%s is a %s).",
                     $tag->getName(),
                     $reflection->getName(),
-                    (new ReflectionClass($this->getBaseClass()))->getShortName(),
+                    (new ReflectionClass($requiredAncestor))->getShortName(),
                     (string) $template,
                     $template::class
                 ));
