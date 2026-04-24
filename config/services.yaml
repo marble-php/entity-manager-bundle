@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=../vendor/symfony/dependency-injection/Loader/schema/services.schema.json
 services:
     marble.entity_manager.entity_manager:
         class: Marble\EntityManager\EntityManager
@@ -20,3 +21,8 @@ services:
 
     Marble\EntityManager\Bundle\DefaultEntityIoProvider: '@marble.entity_manager.io_provider'
     Marble\EntityManager\Contract\EntityIoProvider: '@marble.entity_manager.io_provider'
+
+    marble.entity_manager.repository_factory:
+        class: Marble\EntityManager\Repository\RepositoryFactory
+        arguments: ['marble.entity_manager.io_provider']
+        public: false
