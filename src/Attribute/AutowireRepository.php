@@ -9,7 +9,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  * @api
  */
 #[\Attribute(\Attribute::TARGET_PARAMETER)]
-class Repository extends Autowire
+class AutowireRepository extends Autowire
 {
     /**
      * @param class-string<Entity> $entityClass

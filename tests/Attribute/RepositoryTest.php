@@ -2,7 +2,7 @@
 
 namespace Marble\EntityManager\Bundle\Tests\Attribute;
 
-use Marble\EntityManager\Bundle\Attribute\Repository;
+use Marble\EntityManager\Bundle\Attribute\AutowireRepository;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 
 class RepositoryTest extends MockeryTestCase
@@ -10,7 +10,7 @@ class RepositoryTest extends MockeryTestCase
     public function testCorrectExpression(): void
     {
         $entityClass = 'App\Entity\User';
-        $attribute = new Repository($entityClass);
+        $attribute = new AutowireRepository($entityClass);
 
         $this->assertSame($entityClass, $attribute->entityClass);
         $this->assertSame(
@@ -24,6 +24,6 @@ class RepositoryTest extends MockeryTestCase
         $this->expectException(\TypeError::class);
 
         // @psalm-suppress InvalidArgument
-        new Repository(['App\Entity\User']);
+        new AutowireRepository(['App\Entity\User']);
     }
 }
