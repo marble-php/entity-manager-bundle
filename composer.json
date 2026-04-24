@@ -21,11 +21,11 @@
         "php": "^8.2.27",
         "marble/entity-manager": "~0.13",
         "phpdocumentor/reflection-docblock": "^6.0",
-        "symfony/config": "^7.4",
+        "symfony/config": "^7.4|^8.0",
         "symfony/dependency-injection": "^7.4|^8.0",
-        "symfony/expression-language": "^3.1",
+        "symfony/expression-language": "^7.4|^8.0",
         "symfony/http-kernel": "^7.4|^8.0",
-        "symfony/yaml": "^7.4",
+        "symfony/yaml": "^7.4|^8.0",
         "webmozart/assert": "^2"
     },
     "require-dev": {
