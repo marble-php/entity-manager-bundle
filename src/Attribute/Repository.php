@@ -5,6 +5,9 @@ namespace Marble\EntityManager\Bundle\Attribute;
 use Marble\Entity\Entity;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
+/**
+ * @api
+ */
 #[\Attribute(\Attribute::TARGET_PARAMETER)]
 class Repository extends Autowire
 {
