@@ -41,7 +41,6 @@ class DefaultEntityIoProvider implements EntityIoProvider
             return null;
         }
 
-        /** @psalm-suppress MixedAssignment */
         $reader = $this->readers->get($className);
 
         if ($reader === null) {
@@ -73,7 +72,6 @@ class DefaultEntityIoProvider implements EntityIoProvider
             return null;
         }
 
-        /** @psalm-suppress MixedAssignment */
         $writer = $this->writers->get($className);
 
         if ($writer !== null && !$writer instanceof EntityWriter) {
@@ -100,7 +98,6 @@ class DefaultEntityIoProvider implements EntityIoProvider
             return null;
         }
 
-        /** @psalm-suppress MixedAssignment */
         $repository = $this->repositories->get($className);
 
         if ($repository !== null && !$repository instanceof CustomRepository) {

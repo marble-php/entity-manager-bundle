@@ -31,8 +31,8 @@
     "require-dev": {
         "dg/bypass-finals": "^1.9",
         "mockery/mockery": "^1.6.12",
-        "phpunit/phpunit": "^10|^11|^12|^13",
-        "vimeo/psalm": "^5.0|^6.0|^7.0"
+        "phpstan/phpstan-symfony": "^2.0",
+        "phpunit/phpunit": "^10|^11|^12|^13"
     },
     "autoload": {
         "psr-4": {

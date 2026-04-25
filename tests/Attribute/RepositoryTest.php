@@ -23,7 +23,6 @@ class RepositoryTest extends MockeryTestCase
     {
         $this->expectException(\TypeError::class);
 
-        // @psalm-suppress InvalidArgument
         new AutowireRepository(['App\Entity\User']);
     }
 }

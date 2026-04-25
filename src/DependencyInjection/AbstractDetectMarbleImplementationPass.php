@@ -78,6 +78,9 @@ abstract class AbstractDetectMarbleImplementationPass implements CompilerPassInt
             ->addTag('container.service_locator');
     }
 
+    /**
+     * @param ReflectionClass<object> $reflection
+     */
     protected function findEntityClass(ReflectionClass $reflection): ?string
     {
         $entityFqcn = $this->processDocBlock($reflection, $this->getBaseClass());
@@ -111,9 +114,8 @@ abstract class AbstractDetectMarbleImplementationPass implements CompilerPassInt
     }
 
     /**
-     * @param ReflectionClass $reflection
-     * @param class-string    $requiredAncestor
-     * @return string|null
+     * @param ReflectionClass<object> $reflection
+     * @param class-string            $requiredAncestor
      */
     private function processDocBlock(ReflectionClass $reflection, string $requiredAncestor): ?string
     {
@@ -150,7 +152,7 @@ abstract class AbstractDetectMarbleImplementationPass implements CompilerPassInt
             if (count($templates) <> 1) {
                 try {
                     $refl = new ReflectionClass($requiredAncestor);
-                } catch (ReflectionException) {
+                } catch (ReflectionException) { // @phpstan-ignore catch.neverThrown
                     throw new LogicException("Failed to reflect class {$requiredAncestor}.");
                 }
 
@@ -164,14 +166,13 @@ abstract class AbstractDetectMarbleImplementationPass implements CompilerPassInt
                 ));
             }
 
+            /** @var Type $template */
             $template = reset($templates);
-
-            assert($template instanceof Type);
 
             if (!$template instanceof Object_) {
                 try {
                     $refl = new ReflectionClass($requiredAncestor);
-                } catch (ReflectionException) {
+                } catch (ReflectionException) { // @phpstan-ignore catch.neverThrown
                     throw new LogicException("Failed to reflect class {$requiredAncestor}.");
                 }
 

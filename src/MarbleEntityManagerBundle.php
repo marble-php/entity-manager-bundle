@@ -11,7 +11,6 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
 
-/** @psalm-suppress UnusedClass */
 final class MarbleEntityManagerBundle extends AbstractBundle
 {
     #[\Override]
@@ -21,6 +20,9 @@ final class MarbleEntityManagerBundle extends AbstractBundle
         $container->addCompilerPass(new DependencyInjection\DetectEntityWritersPass());
     }
 
+    /**
+     * @param array<array-key, mixed> $config
+     */
     #[\Override]
     public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
     {
