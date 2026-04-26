@@ -18,11 +18,8 @@ class AutowireRepository extends Autowire
         public readonly string $entityClass,
     ) {
         // https://symfony.com/blog/new-in-symfony-6-3-dependency-injection-improvements#allow-extending-the-autowire-attribute
-        $expression = \sprintf(
-            "service('%s').getRepository(service('%s'), '%s')",
-            'marble.entity_manager.repository_factory',
-            'marble.entity_manager.entity_manager',
-            $entityClass,
+        $expression = \sprintf("service('%s').getRepository(service('%s'), '%s')",
+            'marble.entity_manager.repository_factory', 'marble.entity_manager.entity_manager', str_replace('\\', '\\\\', $entityClass),
         );
 
         parent::__construct(expression: $expression);
