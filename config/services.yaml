@@ -24,5 +24,5 @@ services:
 
     marble.entity_manager.repository_factory:
         class: Marble\EntityManager\Repository\RepositoryFactory
-        arguments: ['marble.entity_manager.io_provider']
+        arguments: ['@marble.entity_manager.io_provider']
         public: false
