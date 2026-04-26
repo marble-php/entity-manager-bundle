@@ -26,3 +26,5 @@ services:
         class: Marble\EntityManager\Repository\RepositoryFactory
         arguments: ['@marble.entity_manager.io_provider']
         public: false
+
+    Marble\EntityManager\Repository\RepositoryFactory: '@marble.entity_manager.repository_factory'
