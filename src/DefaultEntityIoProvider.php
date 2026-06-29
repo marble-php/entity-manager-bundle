@@ -68,19 +68,38 @@ class DefaultEntityIoProvider implements EntityIoProvider
     {
         $this->validateEntityClass($className);
 
-        if (!$this->writers->has($className)) {
+        $writer = $this->findWriter($className);
+
+        if ($writer === null) {
             return null;
-        }
-
-        $writer = $this->writers->get($className);
-
-        if ($writer !== null && !$writer instanceof EntityWriter) {
+        } elseif (!$writer instanceof EntityWriter) {
             throw new LogicException(sprintf("Writer %s for entity %s does not implement %s.",
                 get_debug_type($writer), $className, EntityWriter::class));
         }
 
         /** @var EntityWriter<T> $writer */
         return $writer;
+    }
+
+    /**
+     * @throws ContainerExceptionInterface
+     */
+    private function findWriter(string $className): ?EntityWriter
+    {
+        if ($this->writers->has($className)) {
+            return $this->writers->get($className);
+        }
+
+        // Maybe one of the class's ancestors has a writer.
+        $ancestors = class_parents($className);
+
+        foreach ($ancestors as $ancestor) {
+            if ($this->writers->has($ancestor)) {
+                return $this->writers->get($ancestor);
+            }
+        }
+
+        return null;
     }
 
     /**
