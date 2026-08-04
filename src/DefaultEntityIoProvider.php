@@ -37,24 +37,31 @@ class DefaultEntityIoProvider implements EntityIoProvider
     {
         $this->validateEntityClass($className);
 
-        if (!$this->readers->has($className)) {
-            return null;
+        $ancestors = class_parents($className);
+        $ancestors = $ancestors !== false ? [$className, ...$ancestors] : [$className];
+
+        foreach ($ancestors as $ancestor) {
+            if (!is_subclass_of($ancestor, Entity::class)) {
+                break; // we've reached an ancestor that hasn't implemented the Entity interface
+            }
+
+            if ($this->readers->has($ancestor)) {
+                $reader = $this->readers->get($ancestor);
+
+                if (!$reader instanceof EntityReader) {
+                    throw new LogicException(sprintf("Reader %s for entity %s does not implement %s.",
+                        get_debug_type($reader), $className, EntityReader::class));
+                } elseif (!is_a($ancestor, $readerEntityClass = $reader::getEntityClassName(), true)) {
+                    throw new LogicException(sprintf("Reader %s returned for entity %s reads %s instead.",
+                        $reader::class, $className, $readerEntityClass));
+                }
+
+                /** @var EntityReader<T> $reader */
+                return $reader;
+            }
         }
 
-        $reader = $this->readers->get($className);
-
-        if ($reader === null) {
-            return null;
-        } elseif (!$reader instanceof EntityReader) {
-            throw new LogicException(sprintf("Reader %s for entity %s does not implement %s.",
-                get_debug_type($reader), $className, EntityReader::class));
-        } elseif (!is_a($className, $readerEntityClass = $reader::getEntityClassName(), true)) {
-            throw new LogicException(sprintf("Reader %s returned for entity %s reads %s instead.",
-                $reader::class, $className, $readerEntityClass));
-        }
-
-        /** @var EntityReader<T> $reader */
-        return $reader;
+        return null;
     }
 
     /**
@@ -72,6 +79,10 @@ class DefaultEntityIoProvider implements EntityIoProvider
         $ancestors = $ancestors !== false ? [$className, ...$ancestors] : [$className];
 
         foreach ($ancestors as $ancestor) {
+            if (!is_subclass_of($ancestor, Entity::class)) {
+                break; // we've reached an ancestor that hasn't implemented the Entity interface
+            }
+
             if ($this->writers->has($ancestor)) {
                 $writer = $this->writers->get($ancestor);
 
